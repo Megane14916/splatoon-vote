@@ -18,9 +18,15 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-very-secret-string-th
 # CSRF保護を有効化
 csrf = CSRFProtect(app)
 
+def get_real_ip():
+    """Vercelのヘッダーから実際のIPアドレスを取得する"""
+    if request.headers.getlist("X-Forwarded-For"):
+        # X-Forwarded-Forヘッダーの最初のIPがユーザーのIP
+        return request.headers.getlist("X-Forwarded-For")[0]
+    return request.remote_addr
 # レートリミットを初期化 (IPアドレスごとに制限)
 limiter = Limiter(
-    get_remote_address,
+    key_func=get_real_ip,
     app=app,
     #default_limits=["200 per day", "50 per hour"]
 )
@@ -510,6 +516,6 @@ def vote():
 
 
 # --- アプリケーションの実行 ---
-#if __name__ == '__main__':
-#    init_db() # アプリケーション起動時にデータベースを初期化
-#    app.run(debug=False)
+if __name__ == '__main__':
+    init_db() # アプリケーション起動時にデータベースを初期化
+    app.run(debug=False)
