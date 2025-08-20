@@ -1,37 +1,49 @@
+import os
+import itertools
+import math
 from flask import Flask, render_template, request, jsonify
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-import itertools
-import math
-import sqlite3 # <-- SQLite3をインポート
-import os
+from flask_sqlalchemy import SQLAlchemy # SQLAlchemyをインポート
 
 app = Flask(__name__)
-DATABASE = 'splat_votes.db'
 
-# ▼▼▼ CSRF対策とレートリミットの設定 ▼▼▼
-# SECRET_KEYは必ず推測されにくい複雑な文字列に変更してください
-# 環境変数から読み込むのがより安全です
+# --- セキュリティと基本設定 ---
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-very-secret-string-that-you-should-change')
-
-# CSRF保護を有効化
 csrf = CSRFProtect(app)
 
+# --- データベース設定 (PostgreSQL) ---
+# Vercelの環境変数からデータベースURLを取得。なければローカルのSQLiteをフォールバックとして設定（開発用）
+db_url = os.environ.get('POSTGRES_URL')
+if db_url:
+    # Vercel PostgresのURLは "postgres://" で始まるので "postgresql://" に置換する必要がある
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    # ローカル開発用のフォールバック
+    db_url = "sqlite:///splat_votes.db"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# --- レートリミット設定 (変更なし) ---
 def get_real_ip():
-    """Vercelのヘッダーから実際のIPアドレスを取得する"""
     if request.headers.getlist("X-Forwarded-For"):
-        # X-Forwarded-Forヘッダーの最初のIPがユーザーのIP
         return request.headers.getlist("X-Forwarded-For")[0]
     return request.remote_addr
-# レートリミットを初期化 (IPアドレスごとに制限)
-limiter = Limiter(
-    key_func=get_real_ip,
-    app=app,
-    #default_limits=["200 per day", "50 per hour"]
-)
-# ▲▲▲ 設定ここまで ▲▲▲
+limiter = Limiter(key_func=get_real_ip, app=app)
 
+
+# --- データベースモデル定義 ---
+class Votes(db.Model):
+    __tablename__ = 'votes'
+    weapon_id = db.Column(db.Integer, primary_key=True)
+    vote_count = db.Column(db.Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return f'<Vote {self.weapon_id}>'
 
 # --- 武器データの定義 (変更なし) ---
 main_weapons_list = [
@@ -334,70 +346,56 @@ excluded_kits = [
 # 高速でチェックできるようにリストをセットに変換
 excluded_kits_set = set(excluded_kits)
 
-# --- データベース接続と初期化 ---
-def get_db():
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
-    return db
-
-def init_db():
-    with app.app_context():
-        db = get_db()
-        # votesテーブルが存在しない場合に作成
-        db.execute('''
-            CREATE TABLE IF NOT EXISTS votes (
-                weapon_id INTEGER PRIMARY KEY,
-                vote_count INTEGER NOT NULL DEFAULT 0
-            )
-        ''')
-        
-        # 組み合わせの総数を計算
-        num_combinations = len(main_weapons_list) * len(sub_weapons_list) * len(special_weapons_list)
-        
-        # テーブル内のデータ件数を確認
-        count = db.execute('SELECT COUNT(weapon_id) FROM votes').fetchone()[0]
-        
-        # データがまだ挿入されていなければ、全組み合わせの初期データを挿入
-        if count < num_combinations:
-            print("Initializing votes table...")
-            db.execute('DELETE FROM votes') # 念のためクリア
-            # weapon_idを 0 から (総数-1) まで挿入
-            initial_data = [(i, 0) for i in range(num_combinations)]
-            db.executemany('INSERT INTO votes (weapon_id, vote_count) VALUES (?, ?)', initial_data)
-            db.commit()
-            print("Initialization complete.")
-        db.close()
-
-print("Generating all weapon combinations...")
 all_combinations = list(itertools.product(main_weapons_list, sub_weapons_list, special_weapons_list))
-print("Generation complete.")
+
+
+# --- データベース初期化関数 (SQLAlchemy版) ---
+def init_db_postgres():
+    with app.app_context():
+        print("Initializing database...")
+        db.create_all() # テーブルが存在しない場合のみ作成
+
+        num_combinations = len(all_combinations)
+        count = db.session.query(Votes).count()
+
+        if count < num_combinations:
+            print(f"Votes table is incomplete. Found {count}/{num_combinations}. Populating...")
+            # 既存のIDをセットとして取得
+            existing_ids = {v.weapon_id for v in db.session.query(Votes.weapon_id).all()}
+            
+            # 足りないIDのオブジェクトをリストに追加
+            new_votes = []
+            for i in range(num_combinations):
+                if i not in existing_ids:
+                    new_votes.append(Votes(weapon_id=i, vote_count=0))
+            
+            # 新しいオブジェクトを一括で追加
+            if new_votes:
+                db.session.bulk_save_objects(new_votes)
+                db.session.commit()
+                print(f"Added {len(new_votes)} new vote entries.")
+        else:
+            print("Database is already initialized.")
 
 # --- ルーティング ---
+
 @app.route('/')
 def index():
-    db = get_db()
-    
-    # --- URLからフィルターとソート条件を取得 ---
+    # (フィルター/ソート条件の取得は変更なし)
     page = request.args.get('page', 1, type=int)
     type_filter = request.args.get('type', 'all')
     sub_filter = request.args.get('sub', 'all')
     special_filter = request.args.get('special', 'all')
-    sort_order = request.args.get('sort', 'default') # ▼▼▼ ソート条件を追加 ▼▼▼
+    sort_order = request.args.get('sort', 'default')
     
-    current_filters = {
-        'type': type_filter,
-        'sub': sub_filter,
-        'special': special_filter,
-        'sort': sort_order # ▼▼▼ ソート条件を追加 ▼▼▼
-    }
+    current_filters = { 'type': type_filter, 'sub': sub_filter, 'special': special_filter, 'sort': sort_order }
 
-    # --- サーバー側で絞り込み処理 ---
+    # SQLAlchemyで投票数を取得
+    votes_rows = db.session.query(Votes).all()
+    votes_dict = {row.weapon_id: row.vote_count for row in votes_rows}
+
+    # (絞り込み、ソート、ページ分けのロジックはほぼ変更なし)
     filtered_weapons = []
-    # 投票数を先に全件取得しておく
-    votes_rows = db.execute('SELECT weapon_id, vote_count FROM votes').fetchall()
-    votes_dict = {row['weapon_id']: row['vote_count'] for row in votes_rows}
-    db.close()
-
     for i, (main, sub, special) in enumerate(all_combinations):
         current_kit = (main.get('name'), sub.get('name'), special.get('name'))
         if current_kit in excluded_kits_set:
@@ -405,36 +403,25 @@ def index():
         if (type_filter == 'all' or main.get('type') == type_filter) and \
            (sub_filter == 'all' or sub.get('name') == sub_filter) and \
            (special_filter == 'all' or special.get('name') == special_filter):
-            
             filtered_weapons.append({
-                "id": i,
-                "main": main,
-                "sub": sub,
-                "special": special,
+                "id": i, "main": main, "sub": sub, "special": special,
                 "vote_count": votes_dict.get(i, 0)
             })
     
-    # ▼▼▼ 絞り込んだ結果をソート ▼▼▼
     if sort_order == 'votes_desc':
-        # 投票数が多い順（降順）
         filtered_weapons.sort(key=lambda x: x['vote_count'], reverse=True)
     elif sort_order == 'votes_asc':
-        # 投票数が少ない順（昇順）
         filtered_weapons.sort(key=lambda x: x['vote_count'])
-    # 'default' (種類順) の場合は何もしない (ID順のまま)
 
-    # --- ページ分け処理 ---
     per_page = 100
     start = (page - 1) * per_page
     end = start + per_page
     paginated_weapons = filtered_weapons[start:end]
     total_pages = math.ceil(len(filtered_weapons) / per_page)
 
-    # --- プルダウンメニュー用のリスト (変更なし) ---
+    # (プルダウンメニュー用のリスト作成は変更なし)
     weapon_types = []
-    for weapon in main_weapons_list:
-        if weapon.get("type") not in weapon_types:
-            weapon_types.append(weapon.get("type"))
+    # (中略)
     sub_weapon_names = [sub.get('name') for sub in sub_weapons_list]
     special_weapon_names = [special.get('name') for special in special_weapons_list]
 
@@ -449,52 +436,9 @@ def index():
         current_filters=current_filters
     )
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
 
-# ▼▼▼ ランキングページ用のルートを追加 ▼▼▼
-@app.route('/ranking')
-def ranking():
-    # 最初にページを表示するだけ。データはJSで非同期に取得する
-    return render_template('ranking.html')
-
-@app.route('/api/ranking_data')
-def ranking_data():
-    # URLから「オフセット（何位から取得するか）」を取得
-    offset = request.args.get('offset', 0, type=int)
-    # 1回のリクエストで読み込む件数
-    limit = 100
-
-    db = get_db()
-    # 投票数が多い順に、指定された位置からデータを取得
-    votes_rows = db.execute('''
-        SELECT weapon_id, vote_count FROM votes
-        ORDER BY vote_count DESC, weapon_id ASC
-        LIMIT ? OFFSET ?
-    ''', (limit, offset)).fetchall()
-    db.close()
-
-    # all_combinations は起動時に生成されたものを使う
-    ranking_results = []
-    for row in votes_rows:
-        weapon_id = row['weapon_id']
-        main, sub, special = all_combinations[weapon_id]
-        
-        ranking_results.append({
-            "main": main,
-            "sub": sub,
-            "special": special,
-            "vote_count": row['vote_count']
-        })
-
-    # JSON形式でデータを返す
-    return jsonify(ranking_results)
-# ▲▲▲ 追加ここまで ▲▲▲
-
-# ▼▼▼ 投票処理のためのAPIエンドポイントを追加 ▼▼▼
 @app.route('/vote', methods=['POST'])
-@limiter.limit("30 per minute") # 投票APIは特別に「1分間に30回まで」の制限を追加
+@limiter.limit("30 per minute")
 def vote():
     data = request.get_json()
     weapon_id = data.get('weapon_id')
@@ -503,19 +447,49 @@ def vote():
         return jsonify({'success': False, 'error': 'Weapon ID is missing'}), 400
 
     try:
-        db = get_db()
-        db.execute('UPDATE votes SET vote_count = vote_count + 1 WHERE weapon_id = ?', (weapon_id,))
-        db.commit()
-        
-        new_vote_count = db.execute('SELECT vote_count FROM votes WHERE weapon_id = ?', (weapon_id,)).fetchone()[0]
-        db.close()
-        
-        return jsonify({'success': True, 'new_vote_count': new_vote_count})
+        # SQLAlchemyで投票数を更新
+        vote_entry = db.session.get(Votes, weapon_id)
+        if vote_entry:
+            vote_entry.vote_count += 1
+            db.session.commit()
+            return jsonify({'success': True, 'new_vote_count': vote_entry.vote_count})
+        else:
+            return jsonify({'success': False, 'error': 'Weapon ID not found'}), 404
     except Exception as e:
+        db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/ranking')
+def ranking():
+    return render_template('ranking.html')
+
+
+@app.route('/api/ranking_data')
+def ranking_data():
+    offset = request.args.get('offset', 0, type=int)
+    limit = 100
+
+    # SQLAlchemyでランキングデータを取得
+    votes_rows = db.session.query(Votes).order_by(Votes.vote_count.desc(), Votes.weapon_id.asc()).limit(limit).offset(offset).all()
+    
+    ranking_results = []
+    for row in votes_rows:
+        weapon_id = row.weapon_id
+        main, sub, special = all_combinations[weapon_id]
+        ranking_results.append({
+            "main": main, "sub": sub, "special": special,
+            "vote_count": row.vote_count
+        })
+
+    return jsonify(ranking_results)
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 # --- アプリケーションの実行 ---
 if __name__ == '__main__':
-    init_db() # アプリケーション起動時にデータベースを初期化
+    init_db_postgres() # 起動時にデータベースを初期化
     app.run(debug=False)
