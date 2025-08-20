@@ -43,10 +43,11 @@ function handleScroll() {
     const scrollY = window.scrollY;
 
     // 一番下までスクロールしたかをチェック (20pxの遊びを持たせる)
-    const isAtBottom = scrollY + clientHeight >= scrollHeight - 20;
+    const isAtBottom = scrollY + clientHeight >= scrollHeight - 100;
 
     if (isAtBottom) {
         voteLimiter.classList.add('is-hidden');
+        console.log("hidden")
     } else {
         voteLimiter.classList.remove('is-hidden');
     }

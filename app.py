@@ -510,6 +510,6 @@ def vote():
 
 
 # --- アプリケーションの実行 ---
-if __name__ == '__main__':
-    init_db() # アプリケーション起動時にデータベースを初期化
-    app.run(debug=False)
+#if __name__ == '__main__':
+#    init_db() # アプリケーション起動時にデータベースを初期化
+#    app.run(debug=False)

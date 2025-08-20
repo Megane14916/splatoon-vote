@@ -385,17 +385,6 @@ footer {
     h1 {
         font-size: 1.5em; /* タイトルの文字サイズを調整 */
     }
-
-    #vote-limiter {
-        /* 右下固定から中央下固定に変更 */
-        left: 50%;
-        right: auto;
-        bottom: 10px;
-        transform: translateX(-50%);
-        font-size: 0.9em;
-        padding: 8px 15px;
-    }
-    
     /* ===== 投票ページ (index.html) ===== */
 
     .controls-container {
@@ -496,25 +485,20 @@ footer {
     }
 
     #vote-limiter {
-        left: 50%;
-        right: auto;
-        bottom: 10px;
+        right: 10px;
+        bottom:10px;
         font-size: 0.9em;
         padding: 8px 15px;
         /* アニメーションの開始位置を明確に指定 */
-        transform: translateX(0%) translateY(0);
+        transform: translateY(0);
         /* transitionはスマホ表示の時だけ適用 */
         transition: transform 0.3s ease-in-out;
+        white-space: nowrap;
     }
 
     #vote-limiter.is-hidden {
         /* X軸の移動は維持しつつ、Y軸方向だけを動かす */
-        transform: translateX(0%) translateY(150%);
+        transform: translateY(150%);
     }
 
-}
-
-/* ▼▼▼ カウンターを隠すためのスタイルを新規追加 ▼▼▼ */
-#vote-limiter.is-hidden {
-    transform: translateY(150%); /* Y軸方向に自身の高さの1.5倍分だけ下に移動させる */
 }
