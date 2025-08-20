@@ -29,6 +29,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    const voteLimiter = document.getElementById('vote-limiter');
+
+// 画面幅をチェックするメディアクエリ
+const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+function handleScroll() {
+    // ページ全体の高さ (より正確な方法に変更)
+    const scrollHeight = document.documentElement.scrollHeight;
+    // 表示領域の高さ
+    const clientHeight = document.documentElement.clientHeight;
+    // 現在のスクロール位置
+    const scrollY = window.scrollY;
+
+    // 一番下までスクロールしたかをチェック (20pxの遊びを持たせる)
+    const isAtBottom = scrollY + clientHeight >= scrollHeight - 20;
+
+    if (isAtBottom) {
+        voteLimiter.classList.add('is-hidden');
+    } else {
+        voteLimiter.classList.remove('is-hidden');
+    }
+}
+
+// 画面幅に応じてイベントリスナーを追加/削除する関数
+function setupScrollListener(event) {
+    if (event.matches) {
+        // 画面が狭い場合 (スマホ) はスクロール監視を開始
+        window.addEventListener('scroll', handleScroll);
+    } else {
+        // 画面が広い場合 (PC) はスクロール監視を解除し、常に表示
+        window.removeEventListener('scroll', handleScroll);
+        voteLimiter.classList.remove('is-hidden');
+    }
+}
+
+// 初回読み込み時にチェック
+setupScrollListener(mediaQuery);
+
+// 画面幅が変わったときにもチェック
+mediaQuery.addEventListener('change', setupScrollListener);
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     // --- 投票処理の関数 ---

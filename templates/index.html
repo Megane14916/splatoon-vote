@@ -94,11 +94,11 @@
     </main>
 
     <div class="pagination">
-        <a href="{{ url_for('index', page=1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == 1 else '' }}">&laquo; 最初へ</a>
-        <a href="{{ url_for('index', page=current_page - 1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == 1 else '' }}">&lsaquo; 前へ</a>
+        <a href="{{ url_for('index', page=1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == 1 else '' }}">&laquo; 最初</a>
+        <a href="{{ url_for('index', page=current_page - 1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == 1 else '' }}">&lsaquo; 前</a>
         <span class="page-current">{{ current_page }} / {{ total_pages }}</span>
-        <a href="{{ url_for('index', page=current_page + 1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == total_pages else '' }}">次へ &rsaquo;</a>
-        <a href="{{ url_for('index', page=total_pages, **current_filters) }}" class="page-link {{ 'disabled' if current_page == total_pages else '' }}">最後へ &raquo;</a>
+        <a href="{{ url_for('index', page=current_page + 1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == total_pages else '' }}">次 &rsaquo;</a>
+        <a href="{{ url_for('index', page=total_pages, **current_filters) }}" class="page-link {{ 'disabled' if current_page == total_pages else '' }}">最後 &raquo;</a>
     </div>
 
     <div id="vote-limiter">

@@ -142,11 +142,12 @@ margin-right: auto;
     color: #007bff;
     background-color: #fff;
     border: 1px solid #dee2e6;
-    padding: 10px 15px;
+    padding: 8px 15px;
     margin: 0 5px;
     text-decoration: none;
     border-radius: 5px;
     transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap;
 }
 
 .page-link:hover {
@@ -156,9 +157,10 @@ margin-right: auto;
 }
 
 .page-current {
-    padding: 10px 15px;
+    padding: 8px 15px;
     font-weight: bold;
     color: #333;
+    white-space: nowrap;
 }
 
 /* disabledクラスが付いたリンクのスタイル */
@@ -489,4 +491,30 @@ footer {
         padding: 15px;
         margin: 20px 0;
     }
+    .page-link {
+        margin: 0 3px;
+    }
+
+    #vote-limiter {
+        left: 50%;
+        right: auto;
+        bottom: 10px;
+        font-size: 0.9em;
+        padding: 8px 15px;
+        /* アニメーションの開始位置を明確に指定 */
+        transform: translateX(0%) translateY(0);
+        /* transitionはスマホ表示の時だけ適用 */
+        transition: transform 0.3s ease-in-out;
+    }
+
+    #vote-limiter.is-hidden {
+        /* X軸の移動は維持しつつ、Y軸方向だけを動かす */
+        transform: translateX(0%) translateY(150%);
+    }
+
+}
+
+/* ▼▼▼ カウンターを隠すためのスタイルを新規追加 ▼▼▼ */
+#vote-limiter.is-hidden {
+    transform: translateY(150%); /* Y軸方向に自身の高さの1.5倍分だけ下に移動させる */
 }
