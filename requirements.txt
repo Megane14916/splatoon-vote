@@ -10,3 +10,4 @@ psycopg2-binary==2.9.9  # Vercel Postgres用
 SQLAlchemy==2.0.30     # Vercel Postgres用
 Werkzeug==3.0.3
 WTForms==3.1.2
+Flask-SQLAlchemy==3.1.1
