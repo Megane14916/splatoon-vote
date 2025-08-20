@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>スプラトゥーン3 新ブキ予想投票所</title>
+    <meta name="description" content="スプラトゥーン3のまだ見ぬ新しいブキの組み合わせを予想して投票しよう！13,000通り以上の構成からお気に入りを探して、みんなの人気ランキングをチェック！">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body class="page-index">
+    <div class="content-wrap"> 
+    <header>
+        <h1><span class="brand-title">Splatoon 3</span> 新ブキ予想投票所 🦑</h1>
+            <nav class="header-nav">
+                <a href="{{ url_for('ranking') }}">ランキングページへ <span class="arrow">→</span></a>
+            </nav>
+    </header>
+
+    <div class="controls-container">
+    <div class="control-box filter-box">
+        <h3 class="control-title">絞り込み</h3>
+        <div class="select-group">
+            <div class="select-item">
+                <label for="type-filter" class="select-label">メイン</label>
+                <select id="type-filter">
+                    <option value="all">すべてのブキ種</option>
+                    {% for type in weapon_types %}
+                        <option value="{{ type }}" {% if type == current_filters.type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select-item">
+                <label for="sub-filter" class="select-label">サブ</label>
+                <select id="sub-filter">
+                    <option value="all">すべてのサブ</option>
+                    {% for sub in sub_weapons %}
+                        <option value="{{ sub }}" {% if sub == current_filters.sub %}selected{% endif %}>{{ sub }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select-item">
+                <label for="special-filter" class="select-label">スペシャル</label>
+                <select id="special-filter">
+                    <option value="all">すべてのスペシャル</option>
+                    {% for special in special_weapons %}
+                        <option value="{{ special }}" {% if special == current_filters.special %}selected{% endif %}>{{ special }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="control-box sort-box">
+        <h3 class="control-title">並べ替え</h3>
+        <div class="select-group">
+            <div class="select-item">
+                <select id="sort-order">
+                    <option value="default" {% if current_filters.sort == 'default' %}selected{% endif %}>種類順</option>
+                    <option value="votes_desc" {% if current_filters.sort == 'votes_desc' %}selected{% endif %}>投票数順 (多い順)</option>
+                    <option value="votes_asc" {% if current_filters.sort == 'votes_asc' %}selected{% endif %}>投票数順 (少ない順)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <main>
+    <div id="weapon-grid">
+        {% for weapon in weapons %}
+        <div class="weapon-tile" data-type="{{ weapon.main.type }}" data-main="{{ weapon.main.name }}" data-sub="{{ weapon.sub.name }}" data-special="{{ weapon.special.name }}">
+            
+            <h3 class="main-weapon-name">{{ weapon.main.name }}</h3>
+
+            <div class="tile-body">
+                <img src="{{ url_for('static', filename='images/main/' + weapon.main.image) }}" alt="{{ weapon.main.name }}" class="main-weapon-icon">
+                <div class="sub-special-icons">
+                    <img src="{{ url_for('static', filename='images/sub/' + weapon.sub.image) }}" alt="{{ weapon.sub.name }}" class="sub-special-icon">
+                    <img src="{{ url_for('static', filename='images/special/' + weapon.special.image) }}" alt="{{ weapon.special.name }}" class="sub-special-icon">
+                </div>
+            </div>
+
+            <div class="vote-section">
+                <span class="vote-count" id="vote-count-{{ weapon.id }}">{{ weapon.vote_count }} 票</span>
+                <button class="vote-button" data-id="{{ weapon.id }}">投票する</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    </main>
+
+    <div class="pagination">
+        <a href="{{ url_for('index', page=1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == 1 else '' }}">&laquo; 最初へ</a>
+        <a href="{{ url_for('index', page=current_page - 1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == 1 else '' }}">&lsaquo; 前へ</a>
+        <span class="page-current">{{ current_page }} / {{ total_pages }}</span>
+        <a href="{{ url_for('index', page=current_page + 1, **current_filters) }}" class="page-link {{ 'disabled' if current_page == total_pages else '' }}">次へ &rsaquo;</a>
+        <a href="{{ url_for('index', page=total_pages, **current_filters) }}" class="page-link {{ 'disabled' if current_page == total_pages else '' }}">最後へ &raquo;</a>
+    </div>
+
+    <div id="vote-limiter">
+        <p>今日の残り投票数: <span id="votes-remaining">10</span> 回</p>
+    </div>
+    </div>
+
+    <footer>
+        <p class="footer-disclaimer">当サイトは非公式のファンサイトであり、任天堂株式会社とは一切関係ありません。</p>
+        <nav class="footer-nav">
+            <ul>
+                <li><a href="{{ url_for('about') }}">このサイトについて</a></li>
+                <li><a href="https://x.com/Axxc6HQp2S93271" target="_blank" rel="noopener noreferrer">お問い合わせ (X)</a></li>
+            </ul>
+        </nav>
+        <p class="footer-copyright">&copy; 2025 yoanz</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/filter.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vote.js') }}"></script>
+</body>
+</html>

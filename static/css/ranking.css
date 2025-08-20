@@ -1,0 +1,137 @@
+.ranking-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    color: #333
+}
+
+.ranking-header, .ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.ranking-header {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.rank-col {
+    flex-basis: 20%;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.votes-col { flex-basis: 30%; text-align: right; font-size: 1.2em; font-weight: bold; margin-right: 60px;}
+.weapon-col {
+    flex-basis: 50%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* ▼ text-overflowを追加して長い武器名がはみ出ないようにする ▼ */
+    overflow: hidden; 
+}
+
+.main-icon { height: 48px; }
+.sub-icon, .special-icon {
+    height: 28px; 
+    background-color: rgb(44, 44, 44);
+    padding: 6px;
+    border-radius: 10px;
+}
+
+.weapon-name {
+    font-weight: bold;
+    /* ▼ 長い武器名が...で省略されるように設定 ▼ */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1; /* コンテナが縮んだ時に名前部分が優先的に縮む */
+}
+
+.weapon-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto; /* サブ・スペ画像を右端に寄せる */
+}
+
+
+.load-more-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#load-more-btn {
+    padding: 8px 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+}
+#load-more-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.rank-medal {
+   position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 要素自身のサイズを考慮して中央に配置 */
+
+    display: inline-block;
+    width: 45px;  /* 円を大きくする */
+    height: 45px; /* 円を大きくする */
+    border-radius: 50%;
+    z-index: -1; /* 数字の後ろに回り込ませる */
+    vertical-align: middle;
+}
+
+.rank-1st .rank-medal {
+    background-color: rgb(231, 196, 0);
+}
+
+.rank-2nd .rank-medal {
+    background-color: silver;
+}
+
+.rank-3rd .rank-medal {
+    background-color: #CD7F32;
+}
+.rank-1st, .rank-2nd, .rank-3rd {
+    color: white;
+    z-index: 1;
+    position: relative;
+    top: 2px;
+}
+@media (max-width: 768px) {
+        .votes-col {margin-right: 0px;}
+}

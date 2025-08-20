@@ -1,0 +1,492 @@
+@font-face {
+  font-family: 'SplatoonFont';
+  src: url('../fonts/Paintball_Beta_3.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrap {
+    flex: 1 0 auto; /* この要素が伸びてフッターを下に押し出す */
+}
+
+body {
+    font-family: 'SplatoonFont', "Inter", "Noto Sans JP", sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    padding: 20px;
+    display: flex; /* ← 追加 */
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    margin: 20px auto;
+    display: flex; /* Flexboxレイアウトを適用 */
+    justify-content: space-between; /* 両端に配置 */
+    align-items: center; /* 上下中央揃え */
+    border-bottom: 2px solid #e9ecef; /* 区切り線を引くと見やすい */
+    padding-bottom: 20px; /* 区切り線との余白 */
+    width: 100%; /* 親要素の幅いっぱいに広がるよう設定 */
+    margin-left: auto; /* 中央揃えのため */
+    margin-right: auto; /* 中央揃えのため */
+}
+.page-index header {
+    max-width: 1200px; /* 投票ページのタイル幅に合わせる */
+}
+
+.page-ranking header {
+    max-width: 800px; /* ランキングページのリスト幅に合わせる */
+}
+.brand-title {
+    font-size: 1.2em; /* h1の文字サイズを基準に1.3倍の大きさにする */
+    color: #1e1e1e;   /* 少しだけ濃い色にするとメリハリが出ます */
+}
+
+
+
+h1 {
+    color: #333;
+    font-size: 2em;
+    margin: 0;
+}
+
+#weapon-grid {
+    display: grid;
+    /* 画面幅に応じて列数を自動調整（各列の最小幅は250px） */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px; /* タイル間の余白 */
+    max-width: 1200px;
+    margin: 0 auto; /* 中央揃え */
+}
+
+/* ▼▼▼ 追加 ▼▼▼ */
+.controls-container {
+display: flex;
+justify-content: center; 
+align-items: flex-start;
+gap: 20px;
+margin-bottom: 30px;
+flex-wrap: wrap;
+max-width: 1200px; 
+margin-left: auto; 
+margin-right: auto; 
+}
+
+.control-box {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px 20px;
+}
+
+/* 絞り込みボックスの幅を広く取る */
+.filter-box {
+    flex-grow: 1; /* スペースがあれば幅を広げる */
+}
+
+.control-title {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    color: #333;
+    text-align: center;
+}
+
+.select-group {
+    display: flex;
+    gap: 20px; /* 各項目の間のスペース */
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.select-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* ラベルとセレクトボックスの間のスペース */
+}
+
+.select-label {
+    font-weight: bold;
+    color: #333;
+    font-size: 1em;
+    white-space: nowrap;
+}
+
+.control-box select {
+    padding: 8px 12px;
+    font-size: 1em;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background-color: #fff;
+    min-width: 180px;
+}
+
+/* ▼▼▼ ページネーションのスタイルを追加 ▼▼▼ */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: 20px;
+}
+
+.page-link {
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 10px 15px;
+    margin: 0 5px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-link:hover {
+    background-color: #e9ecef;
+    color: #0056b3;
+    border-color: #ced4da;
+}
+
+.page-current {
+    padding: 10px 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* disabledクラスが付いたリンクのスタイル */
+.page-link.disabled {
+    color: #6c757d;
+    pointer-events: none; /* クリックできなくする */
+    cursor: default;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+/* ▲▲▲ ページネーションのスタイルを追加 ▲▲▲ */
+
+/* ▼▼▼ 投票セクションのスタイルを追加 ▼▼▼ */
+.vote-section {
+    margin: 0 auto;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+}
+
+.vote-count {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+}
+
+.vote-button {
+    background-color: #ff5e5e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.vote-button:hover {
+    background-color: #e63c3c;
+}
+
+/* 投票ボタンが無効化されたときのスタイル */
+.vote-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+/* ▲▲▲ 投票セクションのスタイルを追加 ▲▲▲ */
+
+/* ▼▼▼ 投票カウンターのスタイルを追加 ▼▼▼ */
+#vote-limiter {
+    position: fixed; /* 画面に固定 */
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 1000; /* 他の要素より手前に表示 */
+    font-size: 1.1em;
+}
+
+#vote-limiter p {
+    margin: 0;
+}
+
+#votes-remaining {
+    font-weight: bold;
+    font-size: 1.3em;
+}
+/* ▲▲▲ 投票カウンターのスタイルを追加 ▲▲▲ */
+
+/* ▼▼▼ フッターのスタイルを追加 ▼▼▼ */
+footer {
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #d9dcde;
+    font-size: 0.9em;
+    color: #6c757d;
+    font-family: "Inter", "Noto Sans JP", sans-serif;
+    width: 100%; /* 親要素の幅いっぱいに広がるよう設定 */
+    margin-left: auto; /* 中央揃えのため */
+    margin-right: auto;
+}
+.page-index footer {
+    max-width: 1200px; /* 投票ページのコンテンツ幅に合わせる */
+}
+
+.page-ranking footer {
+    max-width: 900px; /* ランキングページのコンテンツ幅に合わせる */
+}
+.footer-disclaimer {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.footer-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
+
+.footer-nav a {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.footer-nav a:hover {
+    color: #007bff;
+}
+
+.footer-copyright {
+    margin-top: 10px;
+    font-size: 0.8em;
+}
+/* ▲▲▲ 追加ここまで ▲▲▲ */
+
+
+.header-nav a {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.2s;
+}
+.header-nav a:hover {
+    color: #0056b3;
+}
+
+.arrow {
+    font-size: 1.4rem;
+}
+
+
+.weapon-tile {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 25px 35px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+}
+
+.weapon-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+.main-weapon-name {
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    padding-bottom: 10px;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 中間のレイアウトを position: absolute を使わない方法に変更 */
+.tile-body {
+    display: flex;
+    justify-content: space-between; /* 子要素を両端に配置 */
+    align-items: flex-end; /* 子要素を上下中央に配置 */
+    flex-grow: 1; /* この要素が伸びてスペースを埋める */
+    margin-bottom: 10px;
+}
+
+.main-weapon-icon {
+    height: 96px;
+    width: auto;
+    object-fit: contain;
+}
+
+.sub-special-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.sub-special-icon {
+    height: 30px;
+    width: auto;
+    object-fit: contain;
+    background-color: rgb(44, 44, 44);
+    padding: 6px;
+    border-radius: 10px;
+}
+
+
+
+@media (max-width: 768px) {
+
+    /* ===== 共通レイアウト (ヘッダー、フッター、投票カウンターなど) ===== */
+    
+    body {
+        padding: 10px; /* 全体の余白を少し狭くする */
+    }
+
+    header {
+        flex-direction: column; /* ヘッダーの要素を縦に並べる */
+        gap: 10px;
+        padding-bottom: 15px;
+    }
+
+    h1 {
+        font-size: 1.5em; /* タイトルの文字サイズを調整 */
+    }
+
+    #vote-limiter {
+        /* 右下固定から中央下固定に変更 */
+        left: 50%;
+        right: auto;
+        bottom: 10px;
+        transform: translateX(-50%);
+        font-size: 0.9em;
+        padding: 8px 15px;
+    }
+    
+    /* ===== 投票ページ (index.html) ===== */
+
+    .controls-container {
+        flex-direction: column; /* 絞り込みと並べ替えボックスを縦積み */
+        align-items: stretch; /* 幅をコンテナに合わせる */
+    }
+
+    .select-group {
+        flex-direction: column; /* プルダウンを縦積みにする */
+        align-items: stretch;
+    }
+    .select-item select {
+        flex-grow: 1; /* ラベルを除いた残りの幅いっぱいに広がる */
+    }
+
+    /* ===== ランキングページ (ranking.html) ===== */
+    
+    .page-ranking .ranking-header,
+    .page-ranking .ranking-item {
+        display: flex;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .page-ranking .rank-col {
+        flex: 0 0 45px; /* 幅を45pxに固定 (伸びない、縮まない) */
+        padding-right: 20px;
+    }
+
+    .page-ranking .votes-col {
+        flex: 0 0 75px; /* 幅を75pxに固定 */
+        text-align: right;
+        padding-left: 5px;
+    }
+
+    .page-ranking .weapon-col {
+        flex: 1 1 auto; /* 残りのスペースをすべて埋めるように伸びる */
+        min-width: 0; /* はみ出しを防ぐための設定 */
+        margin-left: 0; /* 以前の余白をリセット */
+    }
+    
+    .page-ranking .weapon-name {
+        font-size: 0.9em; /* 文字サイズを少し小さくして収まりやすくする */
+    }
+    .page-ranking .rank-col {
+        flex: 0 0 45px;
+        padding-right: 15px;
+        display: flex; /* Flexbox を適用して中央揃え */
+        justify-content: center;
+        align-items: center;
+        position: relative; /* 子要素の絶対配置の基準 */
+    }
+
+    .rank-number-with-medal {
+        position: relative; /* 円との重なりを制御 */
+        display: inline-flex; /* 内要素を横並び中央揃え */
+        align-items: center;
+        justify-content: center;
+    }
+
+    .rank-medal {
+        position: absolute;
+        width: 24px; /* スマホ用に少し小さく */
+        height: 24px; /* スマホ用に少し小さく */
+        border-radius: 50%;
+        z-index: -1;
+    }
+
+    .rank-1st .rank-medal {
+        background-color: gold;
+        box-shadow: 0 0 3px rgba(255, 215, 0, 0.8);
+    }
+
+    .rank-2nd .rank-medal {
+        background-color: silver;
+        box-shadow: 0 0 3px rgba(192, 192, 192, 0.8);
+    }
+
+    .rank-3rd .rank-medal {
+        background-color: #CD7F32; /* 銅色 */
+        box-shadow: 0 0 3px rgba(205, 127, 50, 0.8);
+    }
+
+    .rank-1st .rank-number-with-medal,
+    .rank-2nd .rank-number-with-medal,
+    .rank-3rd .rank-number-with-medal {
+        color: white; /* 数字を白に */
+    }
+
+  
+    /* ===== このサイトについてページ (about.html) ===== */
+    .container {
+        padding: 15px;
+        margin: 20px 0;
+    }
+}

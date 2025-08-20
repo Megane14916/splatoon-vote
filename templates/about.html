@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>このサイトについて - スプラトゥーン3 新ブキ予想投票</title>
+    <meta name="description" content="スプラトゥーン3 新ブキ予想投票サイトの運営情報、プライバシーポリシー、免責事項などを記載しています。">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* このページ専用の簡易スタイル */
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            line-height: 1.8;
+        }
+        .container h2 {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrap">
+    <div class="container">
+        <h1>このサイトについて</h1>
+        <p>
+            当サイトは、「スプラトゥーン3」に今後追加されるかもしれない新しいブキの組み合わせを自由に予想し、投票して楽しむためのファンサイトです！
+            </p>
+
+        <h2>プライバシーポリシー</h2>
+        <p>
+            当サイトでは、サービスの安定した運営のため、Google Analyticsを利用したアクセス解析、およびFlask-LimiterによるIPアドレスに基づいたアクセス回数の制限を行っています。
+            投票回数の記録には、お使いのブラウザの`localStorage`機能を使用しています。
+            これらの情報はサイトの改善とセキュリティ維持のためにのみ利用し、個人を特定する目的では使用しません。
+        </p>
+
+        <h2>免責事項</h2>
+        <p>
+            当サイトは、任天堂株式会社および「スプラトゥーン3」のファンが個人で制作・運営する非公式のコミュニティサイトです。任天堂株式会社および関連企業とは一切関係ありません。
+            当サイトの利用によって生じたいかなる損害についても、運営者は一切の責任を負いません。
+        </p>
+
+        <h2>アイコン・フォントの出典</h2>
+        <p>
+            当サイト内で使用している「スプラトゥーン3」に関するアイコン、武器名などの著作権および商標権は、すべて任天堂株式会社に帰属します。アイコン画像は <a href="https://splatoonwiki.org/wiki/Main_Page" target="_blank" rel="noopener noreferrer">Splatoon Wiki</a> より引用しています。また、サイト内で使用しているスプラトゥーン風フォント「Paintball」は、<a href="http://fizzystack.web.fc2.com/paintball-ja.html" target="_blank" rel="noopener noreferrer">こちらのサイト</a>からお借りしました。
+            </p>
+
+        <a href="{{ url_for('index') }}" class="back-link"><span class="arrow">←</span> 投票ページに戻る</a>
+    </div>
+    </div>
+
+        <footer>
+        <p class="footer-disclaimer">当サイトは非公式のファンサイトであり、任天堂株式会社とは一切関係ありません。</p>
+        <nav class="footer-nav">
+            <ul>
+                <li><a href="{{ url_for('about') }}">このサイトについて</a></li>
+                <li><a href="https://x.com/Axxc6HQp2S93271" target="_blank" rel="noopener noreferrer">お問い合わせ (X)</a></li>
+            </ul>
+        </nav>
+        <p class="footer-copyright">&copy; 2025 yoanz</p>
+    </footer>
+</body>
+</html>

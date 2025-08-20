@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人気ブキランキング - スプラトゥーン3 新ブキ予想投票所</title>
+    <meta name="description" content="みんなが投票した新ブキ予想の人気ランキングをリアルタイムでチェック！今最も期待されているブキ構成は？">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ranking.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body class="page-ranking">
+    <div class="content-wrap">
+        <header>
+            <h1>人気ブキランキング 🏆</h1>
+            <nav class="header-nav">
+                <a href="{{ url_for('index') }}">投票ページへ <span class="arrow">→</span></a>
+            </nav>
+        </header>
+
+        <main class="ranking-container">
+            <div class="ranking-header">
+                <div class="rank-col">順位</div>
+                <div class="weapon-col">ブキ構成</div>
+                <div class="votes-col">得票数</div>
+            </div>
+
+            <div id="ranking-list"></div>
+
+            <div id="loader" class="loader" style="display: none;"></div>
+            <div class="load-more-container">
+                <button id="load-more-btn">さらに読み込む</button>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p class="footer-disclaimer">当サイトは非公式のファンサイトであり、任天堂株式会社とは一切関係ありません。</p>
+        <nav class="footer-nav">
+            <ul>
+                <li><a href="{{ url_for('about') }}">このサイトについて</a></li>
+                <li><a href="https://x.com/Axxc6HQp2S93271" target="_blank" rel="noopener noreferrer">お問い合わせ (X)</a></li>
+            </ul>
+        </nav>
+        <p class="footer-copyright">&copy; 2025 yoanz</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/ranking.js') }}"></script>
+</body>
+</html>
