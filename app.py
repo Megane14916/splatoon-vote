@@ -489,13 +489,7 @@ def ranking_data():
 def about():
     return render_template('about.html')
 
-@app.route('/_initialize_database_manually_123abc') # ← 秘密のURL
-def init_db_route():
-    try:
-        init_db_postgres()
-        return "Database initialized successfully!"
-    except Exception as e:
-        return f"An error occurred: {str(e)}"
+
 
 # --- アプリケーションの実行 ---
 #if __name__ == '__main__':
