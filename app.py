@@ -421,7 +421,12 @@ def index():
 
     # (プルダウンメニュー用のリスト作成は変更なし)
     weapon_types = []
-    # (中略)
+    for weapon in main_weapons_list:
+        if weapon.get("type") not in weapon_types:
+            weapon_types.append(weapon.get("type"))
+            
+    sub_weapon_names = [sub.get('name') for sub in sub_weapons_list]
+    special_weapon_names = [special.get('name') for special in special_weapons_list]
     sub_weapon_names = [sub.get('name') for sub in sub_weapons_list]
     special_weapon_names = [special.get('name') for special in special_weapons_list]
 
